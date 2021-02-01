@@ -3,12 +3,15 @@ const bcrypt = require('bcrypt'); //Encriptar la contraseña
 const _ = require('underscore');
 
 const Usuario = require('../models/usuario'); //Modelo de datos
+const { verificaToken, verificaAdminRole } = require('../middlewares/autentication');
+
 const { getMaxListeners } = require('../models/usuario');
+const usuario = require('../models/usuario');
 
 const app = express();
 
 //GET
-app.get('/usuario', function (req, res) {
+app.get('/usuario', verificaToken, (req, res) => {
 
     //Pagination --> desde - hasta
     let desde = req.query.desde || 0;
@@ -41,7 +44,7 @@ app.get('/usuario', function (req, res) {
 });
 
 //POST
-app.post('/usuario', function (req, res) {
+app.post('/usuario', [verificaToken, verificaAdminRole], (req, res) => {
     let body = req.body;
     
     let usuario = new Usuario({
@@ -67,7 +70,7 @@ app.post('/usuario', function (req, res) {
 });
 
 //PUT
-app.put('/usuario/:id', function (req, res) {
+app.put('/usuario/:id', [verificaToken, verificaAdminRole], (req, res) => {
     let id = req.params.id;
     let body = _.pick(req.body, ["nombre", "email", "img", "role", "estado"]);
     
@@ -87,7 +90,7 @@ app.put('/usuario/:id', function (req, res) {
 });
 
 //DELETE
-app.delete('/usuario/:id', function (req, res) {
+app.delete('/usuario/:id', [verificaToken, verificaAdminRole], (req, res) => {
     
     let id = req.params.id;
 
